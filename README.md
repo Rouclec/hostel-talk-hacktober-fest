@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hostel Letter
 
-## Getting Started
+A one-page chat that reads a hostel letter or short agreement and separates what the page says from what people add in the corridor. It does not give legal advice and it does not decide who is right.
 
-First, run the development server:
+Paste the text, or attach a photo or PDF. Pick English or French. After the first read, you can send a fact that was not on the page (for example rent already paid) so it stays marked as your fact, not the letter’s.
+
+## Setup
+
+You need **Node.js 20+** and a Google AI Studio API key.
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Create an API key
+
+1. Open [Google AI Studio](https://aistudio.google.com/apikey) and sign in.
+2. Create an API key.
+3. Copy the key. Do not commit it.
+
+### 3. Put the key in the project
+
+```bash
+cp .env.example .env.local
+```
+
+Open `.env.local` and paste the key:
+
+```
+GEMINI_API_KEY=your_key_here
+```
+
+No quotes and no spaces around `=`. `.env` also works; Next.js loads both. `.gitignore` ignores `.env*` except `.env.example`.
+
+### 4. Run the app
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). After you add or change the key, restart the dev server.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Model
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The app calls **Gemma 4** through the Gemini API with `@google/genai`.
 
-## Learn More
+The model id is `gemma-4-26b-a4b-it`, set as `MODEL_ID` in `src/app/api/read/route.ts`. That file is the only place the key is used (server-side `POST /api/read`).
 
-To learn more about Next.js, take a look at the following resources:
+The same HTTP call, without the npm package, is documented in a comment in that route:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`POST https://generativelanguage.googleapis.com/v1beta/models/gemma-4-26b-a4b-it:generateContent`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Use
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Send a letter: paste it, click **Try the sample notice**, or attach a JPEG/PNG/PDF with **+**.
+2. Read the five blocks in the reply.
+3. Send a corridor fact if you need to (rent, months left, not travelling). It is re-read against the same page.
+4. **New letter** starts over.
